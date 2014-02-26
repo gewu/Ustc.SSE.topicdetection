@@ -19,23 +19,24 @@ def data_read(datalist):
                 if len(lines[i]) > 10:
                     str += lines[i]
                     if len(lines[i+1]) < 10:
-                        eassylist.append(str.strip())
+                        eassylist.append(tokenprocess(str.strip(),0))
                         str = ""
     return eassylist
 
 
 def tokenprocess(Strtext,flag = 1):  # flag 0 means do not use porter.stem
    
-    f = open(Strtext)
-    raw = f.read().strip()
-    
-    stop_words = stopwords.words('english')
-    text1 = map(lambda strr:strr[:-1].lower() if strr[-1] == '.' else strr.lower(),nltk.regexp_tokenize(raw,pattern))
-    #text1 = map(lambda strr:strr[:-1].lower() if strr[-1] == '.' else strr.lower(),nl.word_tokenize(raw))
-    if (flag == 1):
-        text1_filter = [porter.stem(word) for word in text1 if word not in stop_words and word.find("'") == -1 and len(word) > 1]
+    if flag == 1:
+        f = open(Strtext)
+        raw = f.read().strip()
     else :
-        text1_filter = [word for word in text1 if word not in stop_words and word.find("'") == -1 and len(word) > 1]
+        raw = Strtext
+    stop_words = stopwords.words('english')
+   # text1 = map(lambda strr:strr[:-1].lower() if strr[-1] == '.' else strr.lower(),nltk.regexp_tokenize(raw,pattern))
+    #text1 = map(lambda strr:strr[:-1].lower() if strr[-1] == '.' else strr.lower(),nl.word_tokenize(raw))
+    
+    text1 = map(lambda word:word.lower(),nltk.regexp_tokenize(raw,pattern))
+    text1_filter = [porter.stem(word) for word in text1 if word not in stop_words and word.find("'") == -1 and len(word) > 1]
   
     return text1_filter
 
@@ -43,8 +44,8 @@ def tokenprocess(Strtext,flag = 1):  # flag 0 means do not use porter.stem
 
 
 '''tokenprocess test'''
-
-'''text = tokenprocess("text")
+'''
+text = tokenprocess("text")
 text_2 = tokenprocess("text_2")
 them  = tokenprocess("them")
 print text

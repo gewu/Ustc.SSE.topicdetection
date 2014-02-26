@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*- 
-
 from __future__ import  division
 import nltk as nl
 import math
-from data_process import data_read,tokenprocess 
+import data_process 
 
 porter = nl.PorterStemmer()
-
+pattern = r'''(?x)([A-Z]\.)+|\w+(-\w+)*|\$?\d+(\.\d+)?%?|\.\.\.|[][.,;"'?():-_`]'''
 
 def freqDist (list_word,rawtext):
+    
     result = {}
     for word in list_word:
         countword = rawtext.count(word)
@@ -21,49 +21,29 @@ def freqDist (list_word,rawtext):
 
 
 def If_idf(freqd,word2,corpus):
-    dict = nl.defaultdict(int)
-    docnum = len(corpus)
     
-    for wordlist in word2:
+    docnum = len(corpus)
+    dict = nl.defaultdict(int)
+    for word in word2:
         count = 0                  #count will not be zhe zero
         for doc in corpus:
-            if doc.find(wordlist) != -1:
+            if word in doc:
                 count = count + 1
-        if (count == 0):
-            print wordlist
-            
-            
-        else :
-            temw = porter.stem(wordlist)
-            if dict[temw] == 0:
-                dict[temw] =  freqd[temw] * math.log10(docnum/count)
+        
+        dict[word] =  freqd[word] * math.log10(docnum/count)
     
     return dict
 
 
      
-def final_process(text):
+def final_process(text,eassy):
 
-
-    datalist1 = []                          #read all the data
-    path = "/home/gewu/workspace/Ustc.SE.topic_detection"
-    testdata = ["/data/20101111_clea.txt","/data/20101111_clean.txt","/data/USTC2011Jan.txt"]
-    for wordtemp in testdata:
-        datalist1.append(path + wordtemp)
-     
     
-   
-    eassy = data_read(datalist1)
-
-    wordt = tokenprocess(text)
-    wordtraw = tokenprocess(text,0)
-    
-
+    wordt = data_process.tokenprocess(text)
     listword = set(wordt)
-    wordtraw = set(wordtraw)
 
     resultword = freqDist(listword,wordt)
-    res = If_idf(resultword,wordtraw,eassy)
+    res = If_idf(resultword,listword,eassy)
     
     return res,wordt
 
@@ -87,10 +67,22 @@ def valueall(test1raw,test1,test2raw,test2):
 
 
 
+datalist1 = []                          #read all the data
+path = "/home/gewu/workspace/Ustc.SE.topic_detection"
+testdata = ["/data/20101111_clea.txt","/data/20101111_clean.txt","/data/USTC2011Jan.txt"]
+for wordtemp in testdata:
+    datalist1.append(path + wordtemp)
 
-test1,rawtest1 = final_process("text")
-test2,rawtest2 = final_process("text_2")
-test3,rawtest3 = final_process("them")
+doclist = data_process.data_read(datalist1)
+
+#doclist = []
+#for doc in eassy:
+#    doclist.append(data_process.tokenprocess(doc,0))
+
+
+test1,rawtest1 = final_process("text",doclist)
+test2,rawtest2 = final_process("text_2",doclist)
+test3,rawtest3 = final_process("them",doclist)
 
 print valueall(rawtest1,test1,rawtest2,test2)
 print valueall(rawtest2,test2,rawtest3,test3)
@@ -100,6 +92,11 @@ print valueall(rawtest3,test3,rawtest1,test1)
 #print test2
 #print valueall(test1,test3)
 #print valueall(test2,test3)
+
+
+
+
+
 
 
 
